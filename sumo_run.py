@@ -6,6 +6,7 @@ import datetime
 from random import randrange
 import pandas as pd
 import os
+import shutil
 from config import scale
 from config import parking_maneuver
 
@@ -153,7 +154,7 @@ while traci.simulation.getMinExpectedNumber() > 0:
                 # traci.trafficlight.setRedYellowGreenState(tfl, trafficsignal[randrange(6)])
 
                 ##------------------------------------------------------##
-        if s > ((3600*hours) + 3600):
+        if s > ((3600*hours) + 3600): #??
             print("*************************************************************************")
             print(hours)
             print("*************************************************************************")
@@ -166,17 +167,21 @@ while traci.simulation.getMinExpectedNumber() > 0:
 
 
 traci.close()
-if s <= ((3600*hours) + 3600):
+if s <= ((3600*hours) + 3600):#what is this? 
     print("*************************************************************************")
     print(hours)
     print("*************************************************************************")
     columnnames = ['dateandtime', 'vehid', 'coord', 'gpscoord', 'spdK/m', 'edge', 'lane', 'displacement', 'turnAngle' , 'vehDen']
     dataset = pd.DataFrame(packBigData, index=None, columns=columnnames)
     dataset.to_csv(f"output_{hours}.csv", index=False)
+    dataset.to_csv(f"{directory}/output_{hours}.csv", index=False)
+
     packBigData=[]
     hours+=1
 
 #Generate Excel file
+
+shutil.copy('SUMO/stats.json', str(directory)+'/') #not tested
 
 time.sleep(5)
 
