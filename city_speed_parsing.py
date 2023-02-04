@@ -4,6 +4,8 @@ import matplotlib as mpl
 import datetime
 from config import scale
 from config import parking_maneuver
+from config import normalized_city_speed
+
 # df['A'].value_counts()
 
 
@@ -63,7 +65,7 @@ for index in range(23):
 
 
     # print(freq)
-    print(avg_speed)
+    # print(avg_speed)
 
 """
 """
@@ -71,25 +73,36 @@ for index in range(23):
 
 
 # print(max(avg_speed))
-max_val = (max(avg_speed))
-# normalized  = (avg_speed/max_val)
-normalized = []
+if normalized_city_speed:
+    max_val = (max(avg_speed))
 
-for index in range(len(avg_speed)): 
-    if not avg_speed[index]:
-        avg_speed[index] = max_val
-    normalized.append(avg_speed[index]/max_val)
-# print(normalized)
-plt.plot(range(0,23),normalized)
+# normalized  = (avg_speed/max_val)
+    normalized = []
+
+    for index in range(len(avg_speed)): 
+        if not avg_speed[index]:
+            avg_speed[index] = max_val
+        normalized.append(avg_speed[index]/max_val)
+    # print(normalized)
+    plt.plot(range(0,23),normalized)
+    plt.ylabel("Normalized Average Speed")
+    plt.ylim([0, 1.1])
+else:
+    
+    plt.plot(range(0,23),avg_speed)
+    plt.ylabel("Average Speed")
+    # plt.ylim([0, 1.1])
+
+
 plt.xlabel("Hour")
-plt.ylabel("Normalized Average Speed")
+
 plt.title("City Average Speed")
 plt.xlim([0, 22])
-plt.ylim([0, 1.1])
+
 
 
 time = datetime.datetime.now()
-title_temp = str(directory+'/city_speed_graph_s'+str(scale)+'_p'+str(parking_maneuver_bin)+'_'+str(time)+'.png') #append date and time to screenshot
+title_temp = str(directory+'/city_speed_graph_s'+str(scale)+'_normalized_'+str(normalized_city_speed)+'_p'+str(parking_maneuver_bin)+'_'+str(time)+'.png') #append date and time to screenshot
 title = title_temp.replace(':','-') #OS can't save file conating ':' 
 
 plt.savefig(title)

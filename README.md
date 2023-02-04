@@ -1,4 +1,4 @@
-put the scipts inside the dsired file
+put the scripts inside the desired file
 
 edit parameters in configuration file
 

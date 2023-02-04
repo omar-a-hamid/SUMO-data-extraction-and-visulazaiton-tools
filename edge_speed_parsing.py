@@ -4,6 +4,7 @@ import matplotlib as mpl
 import datetime
 from config import scale
 from config import parking_maneuver
+from config import normalized_street_speed
 # df['A'].value_counts()
 
 
@@ -104,25 +105,34 @@ if not os.path.isdir(directory):
     os.makedirs(directory)
 
 # print(max(avg_speed))
-max_val = (max(avg_speed))
-# normalized  = (avg_speed/max_val)
-normalized = []
 
-for index in range(len(avg_speed)): 
-    if not avg_speed[index]:
-        avg_speed[index] = max_val
-    normalized.append(avg_speed[index]/max_val)
-# print(normalized)
-plt.plot(range(0,23),normalized)
+if normalized_street_speed:
+    max_val = (max(avg_speed))
+    # normalized  = (avg_speed/max_val)
+    normalized = []
+
+    for index in range(len(avg_speed)): 
+        if not avg_speed[index]:
+            avg_speed[index] = max_val
+        normalized.append(avg_speed[index]/max_val)
+    # print(normalized)
+    plt.plot(range(0,23),normalized)
+
+    plt.ylabel("Normalized Average Speed")
+    plt.ylim([0, 1.1])
+else: 
+    plt.plot(range(0,23),avg_speed)
+    plt.ylabel("Average Speed")
+
+
 plt.xlabel("Hour")
-plt.ylabel("Normalized Average Speed")
 plt.title("Street Average Speed")
 plt.xlim([0, 22])
-plt.ylim([0, 1.1])
+
 
 
 time = datetime.datetime.now()
-title_temp = str(directory+'/street_speed_graph_s'+str(scale)+'_p'+str(parking_maneuver_bin)+'_'+str(time)+'.png') #append date and time to screenshot
+title_temp = str(directory+'/street_speed_graph_s'+str(scale)+'_normalized_'+str(normalized_street_speed)+'_p'+str(parking_maneuver_bin)+'_'+str(time)+'.png') #append date and time to screenshot
 title = title_temp.replace(':','-') #OS can't save file conating ':' 
 
 plt.savefig(title)
