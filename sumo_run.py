@@ -74,7 +74,7 @@ def flatten_list(_2d_list):
     return flat_list
 
 
-sumoCmd = ["sumo", "-c", "osm.sumocfg", "--scale", str(scale),'--parking.maneuver',str(parking_maneuver),'-W'] #scale tarffic by 3 times, disable all warnings
+sumoCmd = ["sumo", "-c", "../osm.sumocfg", "--scale", str(scale),'--parking.maneuver',str(parking_maneuver),'-W'] #scale tarffic by 3 times, disable all warnings
 traci.start(sumoCmd)
 
 packBigData = []
