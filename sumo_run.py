@@ -25,6 +25,8 @@ else:
 
 
 
+
+
 time_temp = str(datetime.datetime.now())
 rt_time = time_temp.replace(':','-')
 directory = "SUMO_run/s_"+str(scale)+'p_'+str(parking_maneuver_bin)+'_'+str(rt_time)
