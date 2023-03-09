@@ -5,6 +5,7 @@ import datetime
 from config import scale
 from config import parking_maneuver
 from config import normalized_street_speed
+from config import EDGE
 # df['A'].value_counts()
 
 
@@ -18,7 +19,7 @@ else:
   
 
   
-
+# EDGE= "765656381#5"
 
 directory = "ss/street_speed"
 
@@ -43,7 +44,7 @@ for index in range(23):
     # speed.append(sum(df['spdK/m'].value_counts()))
     # print(df['edge'])
     # print(df.loc[df['edge'] == '152839428','spdK/m'])
-    speeds = (df.loc[df['edge'] == '152839428','spdK/m'])
+    speeds = (df.loc[df['edge'] == EDGE,'spdK/m'])
     if len(speeds): 
         avg_speed.append(sum(speeds)/len(speeds))
     else:
