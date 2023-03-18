@@ -1,9 +1,10 @@
 clone the repo inside the desired directory
 edit the parameters in configuration file
 
-run sumo_run 
-than you can run any of the following scritps:
+1-run sumo_run 
 
-    freq_trips 
-    city speed parsing
-    edge speed parsing 
+2-than you can run any of the following scritps:
+
+    freq_trips: visualization of all the trips in the city
+    city speed parsing: visualization of all the trips speed in the city per hour
+    edge speed parsing: visualization of all the trips speed in a single edge(chosen in the config.py) per hour
