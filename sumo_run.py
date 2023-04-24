@@ -6,6 +6,7 @@ import datetime
 from random import randrange
 import pandas as pd
 import os
+import numpy as np
 import shutil
 from config import scale
 from config import parking_maneuver
@@ -24,7 +25,7 @@ else:
   
 
 
-
+# time.process_time()
 
 
 time_temp = str(datetime.datetime.now())
@@ -41,31 +42,47 @@ directory = "SUMO_run/s_"+str(scale)+'p_'+str(parking_maneuver_bin)+'_'+str(rt_t
 
 os.makedirs(directory)
 
+year = "2022"
+month = "12"
+day = "6"
+
+# hour =""
+# minutes =""
+# seconds =""
 
 def getdatetime(n):
-    year = 2022
-    month = 12
-    day = 4
-    h = 0*3600
-    m = 0*60
-    s = 0
 
-    n = n + h + m
+    # print("start getdatetime: ",time.process_time())
+    # year = "2022"
+    # month = "12"
+    # day = "6"
+    # h = 0*3600
+    # m = 0*60
+    # s = 0
+
+    # n = n + h + m
 
     n = n % (24 * 3600)
-    hour = n // 3600
+    hour = str(n // 3600)
  
     n = n % 3600
-    minutes = n // 60
+    minutes = str(n // 60)
  
     n %= 60
-    seconds = n
+    # seconds = str(n)
     
-    t = datetime.datetime(year, month, day, hour, minutes, seconds)
-    DATIME = t.strftime("%Y-%m-%d %H:%M:%S")
+    # t = datetime.datetime(year, month, day, hour, minutes, seconds)
+    # DATIME = t.strftime("%Y-%m-%d %H:%M:%S")
+    DATIME = (year+"-"+month+"-"+day+" "+hour+":"+minutes+":"+str(n))
+
+    # print("start getdatetime: ",time.process_time())
+    
     return DATIME
 
 def flatten_list(_2d_list):
+
+    # print("start flatten list: ",time.process_time())
+
     flat_list = []
     for element in _2d_list:
         if type(element) is list:
@@ -73,55 +90,82 @@ def flatten_list(_2d_list):
                 flat_list.append(item)
         else:
             flat_list.append(element)
+    # print("end flatten list: ",time.process_time())
+
     return flat_list
 
 
-sumoCmd = ["sumo", "-c", "../osm.sumocfg", "--scale", str(scale),'--parking.maneuver',str(parking_maneuver),'-W'] #scale tarffic by 3 times, disable all warnings
+sumoCmd = ["sumo", "-c", "../osm.sumocfg", "--scale", str(scale),'--parking.maneuver',str(parking_maneuver),"-W"] #scale tarffic by 3 times, disable all warnings
+# sumoCmd = ["sumo", "-c", "../osm.sumocfg", "--scale", str(scale),'--parking.maneuver',str(parking_maneuver),"--no-warnings"] #scale tarffic by 3 times, disable all warnings
+# sumoCmd = ["sumo", "-c", "../osm.sumocfg", "--scale", str(scale),'--parking.maneuver',str(parking_maneuver),"sumo_warnings=False"] #scale tarffic by 3 times, disable all warnings
+
 traci.start(sumoCmd)
+# traci.
+
+# set a speed limit of 60 km/h for all lanes in the network
+for lane_id in traci.lane.getIDList():
+    traci.lane.setMaxSpeed(lane_id, 13.8)  # 16.67 m/s is equivalent to 60 km/h
+                                           #13.8 m/s is 50km/h
 
 packBigData = []
 
 s = 0
 hours = 0
+print("start: ",time.process_time())
+
 while traci.simulation.getMinExpectedNumber() > 0:
         # while s < (60*10):
         #     s+=1
         #     traci.simulationStep();
+        # print("start while traci sim: ",time.process_time())
 
-        for i in range(0,60):
-            s+=1
-            traci.simulationStep();
+        # for i in range(0,60):
+        #     s+=1
+        #     traci.simulationStep();
+        #     # print(" traci step: ",time.process_time())
+        s+=60
+        traci.simulationStep(s);
 
         vehicles=traci.vehicle.getIDList();
         # print("Vehicle: ", len(vehicles), " at datetime: ", getdatetime(s))
         for i in range(0,len(vehicles)):
 
+                # print("start for i in vehicle: ",time.process_time())
+
+
                 #Function descriptions
                 #https://sumo.dlr.de/docs/TraCI/Vehicle_Value_Retrieval.html
                 #https://sumo.dlr.de/pydoc/traci._vehicle.html#VehicleDomain-getSpeed
-                vehid = vehicles[i]
-                x, y = traci.vehicle.getPosition(vehicles[i])
-                coord = [x, y]
-                lon, lat = traci.simulation.convertGeo(x, y)
-                gpscoord = [lon, lat]
+                # vehid = vehicles[i]
+                # x, y = traci.vehicle.getPosition(vehicles[i])
+                # coord = [x, y]
+                # lon, lat = traci.simulation.convertGeo(x, y)
+                # gpscoord = [lon, lat]
                 spd = (traci.vehicle.getSpeed(vehicles[i])*3.6)
                 edge = traci.vehicle.getRoadID(vehicles[i])
-                lane = traci.vehicle.getLaneID(vehicles[i])
-                displacement = round(traci.vehicle.getDistance(vehicles[i]),2)
-                turnAngle = round(traci.vehicle.getAngle(vehicles[i]),2)
+                # lane = traci.vehicle.getLaneID(vehicles[i])
+                # displacement = round(traci.vehicle.getDistance(vehicles[i]),2)
+                # turnAngle = round(traci.vehicle.getAngle(vehicles[i]),2)
 
                 #Packing of all the data for export to CSV/XLSX
-                vehList = [getdatetime(s), vehid, coord, gpscoord, spd, edge, lane, displacement, turnAngle , len(vehicles)]
+                # vehList = [getdatetime(s), vehid, coord, gpscoord, spd, edge, lane, displacement, turnAngle , len(vehicles)]
+                vehList = [getdatetime(s),  spd, edge, len(vehicles)]
                 
                 
 
 
-                idd = traci.vehicle.getLaneID(vehicles[i])
+                # idd = traci.vehicle.getLaneID(vehicles[i])
 
     
                 #Pack Simulated Data
                 packBigDataLine = flatten_list([vehList])
+
+                # np_vehList = np.array(vehList)
+                # packBigDataLine =  np_vehList.flatten()
+
                 packBigData.append(packBigDataLine)
+
+                # print("end for i in vehicle: ",time.process_time())
 
 
 
@@ -158,9 +202,11 @@ while traci.simulation.getMinExpectedNumber() > 0:
                 ##------------------------------------------------------##
         if s > ((3600*hours) + 3600): #??
             print("*************************************************************************")
-            print(hours)
+
+                # print("end for i in vehicle: ",time.process_time())
+            print(hours ,time.process_time()) #
             print("*************************************************************************")
-            columnnames = ['dateandtime', 'vehid', 'coord', 'gpscoord', 'spdK/m', 'edge', 'lane', 'displacement', 'turnAngle' , 'vehDen']
+            columnnames = ['dateandtime',  'spdK/m', 'edge', 'vehDen']
             dataset = pd.DataFrame(packBigData, index=None, columns=columnnames)
             dataset.to_csv(f"output_{hours}.csv", index=False)
             dataset.to_csv(f"{directory}/output_{hours}.csv", index=False)
@@ -173,7 +219,7 @@ if s <= ((3600*hours) + 3600):#what is this?
     print("*************************************************************************")
     print(hours)
     print("*************************************************************************")
-    columnnames = ['dateandtime', 'vehid', 'coord', 'gpscoord', 'spdK/m', 'edge', 'lane', 'displacement', 'turnAngle' , 'vehDen']
+    columnnames = ['dateandtime',  'spdK/m', 'edge','vehDen']
     dataset = pd.DataFrame(packBigData, index=None, columns=columnnames)
     dataset.to_csv(f"output_{hours}.csv", index=False)
     dataset.to_csv(f"{directory}/output_{hours}.csv", index=False)
